@@ -1,0 +1,15 @@
+../Drivers/CMSIS/Include/core_cm7.h:2156:34:__NVIC_SystemReset	4	static,ignoring_inline_asm
+../Core/Src/DcMotors.c:52:6:xM_init	16	static
+../Core/Src/DcMotors.c:65:6:motor_init	8	static
+../Core/Src/DcMotors.c:176:6:motor_run	48	static,ignoring_inline_asm
+../Core/Src/DcMotors.c:309:6:motor_run_speed_50ms	24	static
+../Core/Src/DcMotors.c:338:6:motor_position	16	static
+../Core/Src/DcMotors.c:358:6:motor_run_position	16	static
+../Core/Src/DcMotors.c:378:6:current_errror	4	static
+../Core/Src/DcMotors.c:400:6:enc_errror	4	static
+../Core/Src/DcMotors.c:422:6:proximal_rotating	40	static
+../Core/Src/DcMotors.c:452:6:distal_rotating	32	static
+../Core/Src/DcMotors.c:480:6:proximal_bending	40	static
+../Core/Src/DcMotors.c:495:6:distal_bending	40	static
+../Core/Src/DcMotors.c:516:6:motor_homeing	24	static
+../Core/Src/DcMotors.c:785:6:UART_DRV_DMA_SendCmd	24	static

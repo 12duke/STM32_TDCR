@@ -1,0 +1,6 @@
+../Core/Src/printf.c:15:6:printf_init	52
+../Core/Src/printf.c:35:6:printf1	2
+../Core/Src/printf.c:48:6:printf2	2
+../Core/Src/printf.c:61:6:printf3	2
+../Core/Src/printf.c:76:6:HAL_UARTEx_RxEventCallback	4
+../Core/Src/printf.c:134:6:HAL_UART_ErrorCallback	4

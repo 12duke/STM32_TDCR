@@ -1,0 +1,3 @@
+../Core/Src/ad.c:22:6:adc_init	16	static
+../Core/Src/ad.c:68:6:adc3_transform	16	static
+../Core/Src/ad.c:83:6:HAL_ADC_ConvCpltCallback	16	static
