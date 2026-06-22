@@ -255,23 +255,37 @@ void motor_position(xMotors *Mx,int16_t speed)
 
 void motor_run_position(void)
 {
-	float joy_speed= 1.0-0.7*JOY_S/AD_max;
-	if(M1.mode >=3)M1.rpm_max_Target = 0.1+(0.5+0.4)*joy_speed*M1.speed*Mx_rpm_max;   //
-	if(M1.mode >=2)M1.enc_Target = (distal_rotating_angle * distal_rotating_b) + (distal_bending_circle * rotating_circle_64);
-	if(M1.mode >=1)motor_position(&M1,M1.rpm_max_Target);
+    float joy_speed = 1.0 - 0.7 * JOY_S / AD_max;
 
-	if(M2.mode >=3)M2.rpm_max_Target = 0.1+(0.5*joy_speed)*Mx_rpm_max;
-	if(M2.mode >=2)M2.enc_Target = (distal_rotating_angle * distal_rotating_b);
-	if(M2.mode >=1)motor_position(&M2,M2.rpm_max_Target);
+    // ==================== 只保留 M1（弯曲）和 M2（旋转） ====================
+    if (M1.mode >= 3)
+        M1.rpm_max_Target = 0.1 + (0.5 + 0.4) * joy_speed * M1.speed * Mx_rpm_max;
 
-	if(M3.mode >=3)M3.rpm_max_Target = 0.1+(0.5*joy_speed)*Mx_rpm_max;
-	if(M3.mode >=2)M3.enc_Target = (proximal_rotating_angle * proximal_rotating_b);
-	if(M3.mode >=1)motor_position(&M3,M3.rpm_max_Target);
+    if (M1.mode >= 2)
+        M1.enc_Target = (distal_rotating_angle * distal_rotating_b) + (distal_bending_circle * rotating_circle_64);
 
-	if(M4.mode >=3)M4.rpm_max_Target = 0.1+(0.5+0.4)*joy_speed*M4.speed*Mx_rpm_max;
-	if(M4.mode >=2)M4.enc_Target = (proximal_rotating_angle * proximal_rotating_b) + (proximal_bending_circle * rotating_circle_64);
-	if(M4.mode >=1)motor_position(&M4,M4.rpm_max_Target);
+    if (M1.mode >= 1)
+        motor_position(&M1, M1.rpm_max_Target);
 
+    if (M2.mode >= 3)
+        M2.rpm_max_Target = 0.1 + (0.5 * joy_speed) * Mx_rpm_max;
+
+    if (M2.mode >= 2)
+        M2.enc_Target = (distal_rotating_angle * distal_rotating_b);
+
+    if (M2.mode >= 1)
+        motor_position(&M2, M2.rpm_max_Target);
+
+    // ==================== 下面 M3 和 M4 的代码已注释（第一版测试用） ====================
+    /*
+    if(M3.mode >=3)M3.rpm_max_Target = 0.1+(0.5*joy_speed)*Mx_rpm_max;
+    if(M3.mode >=2)M3.enc_Target = (proximal_rotating_angle * proximal_rotating_b);
+    if(M3.mode >=1)motor_position(&M3,M3.rpm_max_Target);
+
+    if(M4.mode >=3)M4.rpm_max_Target = 0.1+(0.5+0.4)*joy_speed*M4.speed*Mx_rpm_max;
+    if(M4.mode >=2)M4.enc_Target = (proximal_rotating_angle * proximal_rotating_b) + (proximal_bending_circle * rotating_circle_64);
+    if(M4.mode >=1)motor_position(&M4,M4.rpm_max_Target);
+    */
 }
 void current_errror(void)
 {

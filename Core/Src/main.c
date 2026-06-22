@@ -112,8 +112,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		M1.enc_now_total = (int64_t)M1.overflow * overflow_enc + M1_enc-enc_default;  //总编�?
 		M2.enc_now_total = (int64_t)M2.overflow * overflow_enc + M2_enc-enc_default;
-		M3.enc_now_total = (int64_t)M3.overflow * overflow_enc + M3_enc-enc_default;
-		M4.enc_now_total = (int64_t)M4.overflow * overflow_enc + M4_enc-enc_default;
+		//M3.enc_now_total = (int64_t)M3.overflow * overflow_enc + M3_enc-enc_default;
+		//M4.enc_now_total = (int64_t)M4.overflow * overflow_enc + M4_enc-enc_default;
 
 
 		if(htim6_i%500 == 0)                                 // 50ms
@@ -170,8 +170,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			motor_run_speed_50ms(&M1);       //速度�?
 			motor_run_speed_50ms(&M2);
-			motor_run_speed_50ms(&M3);
-			motor_run_speed_50ms(&M4);
+			//motor_run_speed_50ms(&M3);
+			//motor_run_speed_50ms(&M4);
 
 		}
 
@@ -211,9 +211,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		else if(distal_bending_en && M1.busy == 0)distal_bending_en = 0;
 		if(labs(labs(M1.enc_now_total - M1.enc_Target) - labs(M2.enc_now_total - M2.enc_Target)/4)<10)distal_bending_en = 0;
 
-		if(proximal_rotating_en && M3.busy == 0)proximal_rotating_en = 0;
-		else if(proximal_bending_en&&M4.busy == 0)proximal_bending_en = 0;
-		if(labs(labs(M4.enc_now_total - M4.enc_Target) - labs(M3.enc_now_total - M3.enc_Target)/4)<10)proximal_bending_en = 0;
+		//if(proximal_rotating_en && M3.busy == 0)proximal_rotating_en = 0;
+		//else if(proximal_bending_en&&M4.busy == 0)proximal_bending_en = 0;
+		//if(labs(labs(M4.enc_now_total - M4.enc_Target) - labs(M3.enc_now_total - M3.enc_Target)/4)<10)proximal_bending_en = 0;
 
 
 		 if(M4.mode == 0)                                            //堵转�?�?
@@ -273,16 +273,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(htim7_i%100 == 0)
 		{
 
-			if( M1.error || M2.error || M3.error ||M4.error) //错误   LED常量
+			if( M1.error || M2.error )   // 只判断保留的两个电机
 			{
-				HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin,GPIO_PIN_RESET);
-				HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin,GPIO_PIN_RESET);
-
+			    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin,GPIO_PIN_RESET);
 			}
 			else
 			{
-				HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-				HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+			    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+			    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 			}
 		}
 
