@@ -240,7 +240,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		 }
 
-		if(htim7_i %25 == 0 && !motor_homeing_n)     // 500*1ms
+		/*if(htim7_i %25 == 0 && !motor_homeing_n)     // 500*1ms
 		{
 
 			if(Inspire_flag == 0)
@@ -257,7 +257,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 			}
 			UART_DRV_DMA_SendCmd(0x01,CMD_SEEKPOS_SERVO,Min_Inspire_Motor+Inspire_buf);
-		}
+		}暂时不用电推杠*/
 
 
 
@@ -358,7 +358,10 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim7);
 	HAL_TIM_Base_Start_IT(&htim6);
 
-	motor_homeing_n = 1;
+	motor_homeing_n = 0;
+
+	/*禁用归零系统*/
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

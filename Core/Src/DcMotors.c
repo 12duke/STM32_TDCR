@@ -17,9 +17,10 @@ xMotors M2;
 xMotors M3;
 xMotors M4;
 
-uint32_t whole_dis = 0;
+/*uint32_t whole_dis = 0;
 uint32_t Inspire_buf = 0;
 uint8_t Inspire_flag = 0;
+电推杠相关*/
 
 //uint8_t position_mode = 0;
 uint16_t motor_homeing_n = 0;
@@ -67,32 +68,32 @@ void motor_init(void)
 
 	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_1,PWM_val_stop);
 	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_2,PWM_val_stop);
-	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_3,PWM_val_stop);
-	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,PWM_val_stop);
+	//__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_3,PWM_val_stop);
+	//__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,PWM_val_stop);
 
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
+  //HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_3);
+  //HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 
 
 
 	__HAL_TIM_CLEAR_IT(&htim1,TIM_IT_UPDATE);
 	__HAL_TIM_CLEAR_IT(&htim2,TIM_IT_UPDATE);
-	__HAL_TIM_CLEAR_IT(&htim3,TIM_IT_UPDATE);
-	__HAL_TIM_CLEAR_IT(&htim8,TIM_IT_UPDATE);
+	//__HAL_TIM_CLEAR_IT(&htim3,TIM_IT_UPDATE);
+	//__HAL_TIM_CLEAR_IT(&htim8,TIM_IT_UPDATE);
 
 
 	HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_1|TIM_CHANNEL_2);
 	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_1|TIM_CHANNEL_2);
-	HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1|TIM_CHANNEL_2);
-	HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1|TIM_CHANNEL_2);
+	//HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1|TIM_CHANNEL_2);
+	//HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1|TIM_CHANNEL_2);
 
 
 	HAL_TIM_Base_Start_IT(&htim1);
 	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_TIM_Base_Start_IT(&htim8);
+	//HAL_TIM_Base_Start_IT(&htim3);
+	//HAL_TIM_Base_Start_IT(&htim8);
 
 
 	M1.GPIOx = M1_DIR_OUT_GPIO_Port;
@@ -106,7 +107,7 @@ void motor_init(void)
 	M2_enc=0;
 
 
-	M3.GPIOx = M3_DIR_OUT_GPIO_Port;
+	/*M3.GPIOx = M3_DIR_OUT_GPIO_Port;
 	M3.GPIO_Pin =  M3_DIR_OUT_Pin;
 	M3.PWM_CHANNEL = TIM_CHANNEL_3;
 	M3_enc=0;
@@ -116,16 +117,16 @@ void motor_init(void)
 	M4.GPIO_Pin =  M4_DIR_OUT_Pin;
 	M4.PWM_CHANNEL = TIM_CHANNEL_4;
 	M4_enc=0;
-
+*/
 	xM_init(&M1);
 	xM_init(&M2);
-	xM_init(&M3);
-	xM_init(&M4);
+	//xM_init(&M3);
+	//xM_init(&M4);
 
 	__HAL_TIM_SET_COUNTER(&htim1,enc_default);
 	__HAL_TIM_SET_COUNTER(&htim2,enc_default);
-	__HAL_TIM_SET_COUNTER(&htim3,enc_default);
-	__HAL_TIM_SET_COUNTER(&htim8,enc_default);
+	//__HAL_TIM_SET_COUNTER(&htim3,enc_default);
+	//__HAL_TIM_SET_COUNTER(&htim8,enc_default);
 
 
 	proximal_rotating_angle = 0;
@@ -147,162 +148,59 @@ void motor_init(void)
 
 	M1.rpm_max_Target = Mx_rpm_max;
 	M2.rpm_max_Target = Mx_rpm_max;
-	M3.rpm_max_Target = Mx_rpm_max;
-	M4.rpm_max_Target = Mx_rpm_max;
+	//M3.rpm_max_Target = Mx_rpm_max;
+	//M4.rpm_max_Target = Mx_rpm_max;
 
 	M1.mode = 3;
 	M2.mode = 3;
-	M3.mode = 3;
-	M4.mode = 3;
+	//M3.mode = 3;
+	//M4.mode = 3;
 
 	M1.error = 0;
 	M2.error = 0;
-	M3.error = 0;
-	M4.error = 0;
+	//M3.error = 0;
+	//M4.error = 0;
 
 
 	PID_param_init(&M1.pid_speed,0.1,2.5,0.1);                              //速度环PID初始�???????????????
 	PID_param_init(&M2.pid_speed,0.1,2.5,0.1);
-	PID_param_init(&M3.pid_speed,0.1,2.5,0.1);
-	PID_param_init(&M4.pid_speed,0.1,2.5,0.1);
+	//PID_param_init(&M3.pid_speed,0.1,2.5,0.1);
+	//PID_param_init(&M4.pid_speed,0.1,2.5,0.1);
 
 	PID_param_init(&M1.pid_position,0.2,0.015,5);
 	PID_param_init(&M2.pid_position,0.2,0.015,5);
-	PID_param_init(&M3.pid_position,0.2,0.015,5);
-	PID_param_init(&M4.pid_position,0.2,0.015,5);
+	//PID_param_init(&M3.pid_position,0.2,0.015,5);
+	//PID_param_init(&M4.pid_position,0.2,0.015,5);
 
 
 }
 void motor_run(void)
 {
-	if(motor_homeing_n)motor_homeing();
-	else if(!(M1.error || M2.error || M3.error ||M4.error))
+	// 第一版测试：完全禁用归零功能
+	// if(motor_homeing_n) motor_homeing();
+
+	if(!(M1.error || M2.error))          // 只判断保留的两个电机
 	{
-		if(joy_button)
+		if(joy_en)
 		{
+			M1.mode = 3;
+			M2.mode = 3;
 
-			if(button_home_time<5000)button_home_time++;
-
-
-			if(button_home_time == 5000)
-			{
-				__set_FAULTMASK(1);
-				NVIC_SystemReset();
-			}
-//			else if(button_home_time >= 1000)
-//			{
-//				button_home_flag = 3;
-//			}
-			else if(button_home_time>=500)
-			{
-
-				if(joy_key3_button)button_home_flag = 1;
-				else button_home_flag = 2;
-			}
-
-			switch(button_home_flag)
-			{
-			case 1:
-				M4.speed = 1;
-				proximal_bending_circle = 0;
-				break;
-			case 2:
-				M1.speed = 1;
-				distal_bending_circle = 0;
-				break;
-			case 3:
-				M1.speed = 1;
-				M4.speed = 1;
-				proximal_bending_circle = 0;
-				distal_bending_circle = 0;
-				break;
-			}
-		}
-		else
-		{
-			if(button_home_flag)
-			{
-				if(M1.busy == 0 && M4.busy == 0)button_home_flag = 0;
-			}
-			button_home_time = 0;
-		}
-
-		if(joy_en && !button_home_flag)
-		{
-
-			if(joy_key3_button)
-			{
-
-			//	if(joy_r<= joy_rMax)joy_r = joy_rMax;
-				{
-					M3.mode = 3;
-					M4.mode = 3;
-					//proximal_rotating(joy_a);
-					proximal_bending(joy_a,joy_r,joy_rMax);
-					proximal_status = 1;
-				}
-//				else
-//				{
-//					if(proximal_status == 1)
-//					{
-//						proximal_bending_circle = proximal_bending_circle_now;
-//						proximal_status = 2;
-//					}
-//					M3.mode = 3;
-//					M4.mode = 3;
-//					proximal_rotating(joy_a);
-//
-//				}
-			}
-
-			else
-			{
-
-			//	if(joy_r<= joy_rMax)joy_r = joy_rMax;
-				{
-					M1.mode = 3;
-					M2.mode = 3;
-					distal_rotating(joy_a);
-
-				//	distal_rotating_angle =  0;
-					distal_bending(joy_a,joy_r,joy_rMax);
-					distal_status = 1;
-				}
-//				else
-//				{
-//					if(distal_status == 1)
-//					{
-//						distal_bending_circle = distal_bending_circle_now;
-//						distal_status = 2;
-//					}
-//					M3.mode = 3;
-//					M4.mode = 3;
-//					distal_rotating(joy_a);
-//
-//				}
-			}
+			distal_rotating(joy_a);                    // 旋转控制（M2）
+			distal_bending(joy_a, joy_r, joy_rMax);    // 弯曲控制（M1）
+			distal_status = 1;
 		}
 		else
 		{
 			if(distal_status)
 			{
 				distal_status = 0;
-				M3.mode = 2;
-				M4.mode = 2;
+				M1.mode = 2;
+				M2.mode = 2;
 
 				distal_rotating_angle = -distal_rotating_angle_now;
 				distal_bending_circle = distal_bending_circle_now;
 			}
-			if(proximal_status)
-			{
-				proximal_status = 0;
-				M1.mode = 2;
-				M2.mode = 2;
-				proximal_rotating_angle = -proximal_rotating_angle_now;
-				proximal_bending_circle = proximal_bending_circle_now;
-			}
-
-
 		}
 	}
 }
