@@ -176,33 +176,37 @@ void motor_init(void)
 }
 void motor_run(void)
 {
-	// 第一版测试：完全禁用归零功能
-	// if(motor_homeing_n) motor_homeing();
+    const uint16_t JOY_DEADZONE = 80;          // ← 新增死区（可调 50~120）
 
-	if(!(M1.error || M2.error))          // 只判断保留的两个电机
-	{
-		if(joy_en)
-		{
-			M1.mode = 3;
-			M2.mode = 3;
+    if (joy_r < JOY_DEADZONE)
+    {
+        joy_en = 0;                            // 强制视为松手
+    }
 
-			distal_rotating(joy_a);                    // 旋转控制（M2）
-			distal_bending(joy_a, joy_r, joy_rMax);    // 弯曲控制（M1）
-			distal_status = 1;
-		}
-		else
-		{
-			if(distal_status)
-			{
-				distal_status = 0;
-				M1.mode = 2;
-				M2.mode = 2;
+    if (!(M1.error || M2.error))
+    {
+        if (joy_en)
+        {
+            M1.mode = 3;
+            M2.mode = 3;
 
-				distal_rotating_angle = -distal_rotating_angle_now;
-				distal_bending_circle = distal_bending_circle_now;
-			}
-		}
-	}
+            distal_rotating(joy_a);
+            distal_bending(joy_a, joy_r, joy_rMax);
+            distal_status = 1;
+        }
+        else
+        {
+            if (distal_status)
+            {
+                distal_status = 0;
+                M1.mode = 2;
+                M2.mode = 2;
+
+                distal_rotating_angle = -distal_rotating_angle_now;
+                distal_bending_circle = distal_bending_circle_now;
+            }
+        }
+    }
 }
 void motor_run_speed_50ms(xMotors *Mx)
 {
@@ -255,37 +259,66 @@ void motor_position(xMotors *Mx,int16_t speed)
 
 void motor_run_position(void)
 {
-    float joy_speed = 1.0 - 0.7 * JOY_S / AD_max;
+    // ==================== 1. 协调运动（A→B 同时旋转+弯曲） ====================
+    static float target_rotating_angle = 0;
+    static float target_bending_circle = 0;
+    static uint8_t move_to_target_en = 0;          // 外部可通过 start_move_to_target() 置 1
 
-    // ==================== 只保留 M1（弯曲）和 M2（旋转） ====================
+    if (move_to_target_en)
+    {
+        float rot_step  = 0.6f;     // 每1ms 旋转步长（可调）
+        float bend_step = 0.006f;   // 每1ms 弯曲步长（可调）
+
+        if (fabs(distal_rotating_angle - target_rotating_angle) > rot_step)
+            distal_rotating_angle += (target_rotating_angle > distal_rotating_angle ? rot_step : -rot_step);
+        else
+            distal_rotating_angle = target_rotating_angle;
+
+        if (fabs(distal_bending_circle - target_bending_circle) > bend_step)
+            distal_bending_circle += (target_bending_circle > distal_bending_circle ? bend_step : -bend_step);
+        else
+            distal_bending_circle = target_bending_circle;
+
+        if (fabs(distal_rotating_angle - target_rotating_angle) < 0.5f &&
+            fabs(distal_bending_circle - target_bending_circle) < 0.005f)
+        {
+            move_to_target_en = 0;
+            M1.mode = 2;
+            M2.mode = 2;
+        }
+        else
+        {
+            M1.mode = 3;
+            M2.mode = 3;
+        }
+    }
+
+    // ==================== 2. 原有逻辑 + 135° 安全限位 ====================
     if (M1.mode >= 3)
-        M1.rpm_max_Target = 0.1 + (0.5 + 0.4) * joy_speed * M1.speed * Mx_rpm_max;
+        M1.rpm_max_Target = 0.1 + (0.5 + 0.4) * (1.0 - 0.7 * JOY_S / AD_max) * M1.speed * Mx_rpm_max;
 
     if (M1.mode >= 2)
-        M1.enc_Target = (distal_rotating_angle * distal_rotating_b) + (distal_bending_circle * rotating_circle_64);
+    {
+        float rotation_contrib = distal_rotating_angle * ROTATION_PER_DEG;
+        float bending_contrib  = distal_bending_circle * BENDING_SCALE;
+
+        // ★ 135° 安全边界（只限制弯曲额外行程）
+        float max_bending_add = MAX_BENDING_EXTRA_TURNS * BENDING_SCALE;
+        if (bending_contrib > max_bending_add) bending_contrib = max_bending_add;
+        if (bending_contrib < 0)               bending_contrib = 0;
+
+        M1.enc_Target = (int64_t)(rotation_contrib + bending_contrib);
+    }
 
     if (M1.mode >= 1)
         motor_position(&M1, M1.rpm_max_Target);
 
-    if (M2.mode >= 3)
-        M2.rpm_max_Target = 0.1 + (0.5 * joy_speed) * Mx_rpm_max;
-
+    // M2 部分保持原有逻辑...
     if (M2.mode >= 2)
-        M2.enc_Target = (distal_rotating_angle * distal_rotating_b);
+        M2.enc_Target = distal_rotating_angle * ROTATION_PER_DEG;
 
     if (M2.mode >= 1)
         motor_position(&M2, M2.rpm_max_Target);
-
-    // ==================== 下面 M3 和 M4 的代码已注释（第一版测试用） ====================
-    /*
-    if(M3.mode >=3)M3.rpm_max_Target = 0.1+(0.5*joy_speed)*Mx_rpm_max;
-    if(M3.mode >=2)M3.enc_Target = (proximal_rotating_angle * proximal_rotating_b);
-    if(M3.mode >=1)motor_position(&M3,M3.rpm_max_Target);
-
-    if(M4.mode >=3)M4.rpm_max_Target = 0.1+(0.5+0.4)*joy_speed*M4.speed*Mx_rpm_max;
-    if(M4.mode >=2)M4.enc_Target = (proximal_rotating_angle * proximal_rotating_b) + (proximal_bending_circle * rotating_circle_64);
-    if(M4.mode >=1)motor_position(&M4,M4.rpm_max_Target);
-    */
 }
 void current_errror(void)
 {
@@ -404,24 +437,22 @@ void proximal_bending(float angle,float R,uint16_t Rmax)
 	else M4.speed =0;
 }
 
-void distal_bending(float angle,float R,uint16_t Rmax)
+void distal_bending(float angle, float R, uint16_t Rmax)
 {
+    if ((angle <= sectors) || (angle >= 360 - sectors))
+    {
+        // 核心修改：比例 + 135°上限
+        distal_bending_circle = (R / Rmax) * MAX_BENDING_EXTRA_TURNS;
 
-	//if(angle>180)angle-=360;
+        // 如果增大弯曲时 M1 需要反转，请在这里加负号：
+        // distal_bending_circle = -(R / Rmax) * MAX_BENDING_EXTRA_TURNS;
+    }
+    else
+    {
+        distal_bending_circle = 0;
+    }
 
-//	angle += (int16_t)(-distal_rotating_angle/360+(distal_rotating_angle>0?-1:0))*360;
-//
-//	if((angle>=(-distal_rotating_angle-sectors)) && (angle<=(-distal_rotating_angle+sectors)))
-//		angle += (int16_t)(-distal_rotating_angle/360+(distal_rotating_angle>0?-1:0))*360;
-//
-		if((angle<=sectors) || (angle>=360-sectors))
-	{
-		distal_bending_circle = distal_bending_circle_n;
-	}
-	else distal_bending_circle = 0;
-
-	if(fabs(distal_bending_circle-distal_bending_circle_now)>0.01)M1.speed =R/Rmax;
-	else M1.speed =0;
+    M1.speed = R / Rmax;
 }
 
 

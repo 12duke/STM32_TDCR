@@ -131,6 +131,17 @@ extern TIM_HandleTypeDef htim15;
 #define proximal_bending_circle_n 5.5
 #define distal_bending_circle_n -6.0
 
+// ==================== 单根绳专用参数（新增） ====================
+#define MAX_BENDING_EXTRA_DEG     135.0f
+#define MAX_BENDING_EXTRA_TURNS   (MAX_BENDING_EXTRA_DEG / 360.0f)
+
+// 独立缩放系数（齿比/绳长映射）
+#define BENDING_SCALE             ((float)Motors_wire * Reduction_ratio_64 * Motors_encoder * Gear_A / Gear_B)
+#define ROTATION_SCALE            ((float)Motors_wire * Reduction_ratio_64 * Motors_encoder * Gear_A / Gear_B)
+
+#define BENDING_PER_DEG           (BENDING_SCALE / 360.0f)
+#define ROTATION_PER_DEG          (ROTATION_SCALE / 360.0f)
+
 ////SZ
 //
 //#define coefficientd (0.65+0.55)
